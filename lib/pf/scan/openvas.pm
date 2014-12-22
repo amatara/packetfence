@@ -24,6 +24,8 @@ use base ('pf::scan');
 use pf::config;
 use pf::util;
 
+sub description { 'Openvas Scanner' }
+
 Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;

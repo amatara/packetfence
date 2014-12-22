@@ -72,6 +72,8 @@ our (
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm, $cached_realm,
+#scan.conf
+    %ConfigScan, $cached_scan,
 );
 
 BEGIN {
@@ -121,6 +123,7 @@ BEGIN {
         $OS
         %Doc_Config
         %ConfigRealm $cached_realm
+        %ConfigScan $cached_scan
     );
 }
 
@@ -801,6 +804,26 @@ sub readRealmFile {
     }
 }
 
+=item readScanFile - scan.conf
+
+=cut
+
+sub readScan {
+    $cached_scan = pf::config::cached->new(
+        -file => $scan_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_scan_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigScan);
+            $config->cleanupWhitespace(\%ConfigScan);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
+
 =item normalize_time - formats date
 
 Returns the number of seconds represented by the time period.
@@ -1204,6 +1227,8 @@ sub _fetch_virtual_ip {
 
     # [interface $int].vip= ... always wins
     return $Config{$config_section}{'vip'} if defined($Config{$config_section}{'vip'});
+
+    return if (defined($Config{$config_section}{'active_active_ip'}) && isenabled($Config{$config_section}{'active_active_enabled'}));
 
     my $if = Net::Interface->new($interface);
     return if (!defined($if));
