@@ -20,6 +20,7 @@ use List::MoreUtils qw(uniq);
 
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::Scan;
 use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -218,6 +219,32 @@ has_field 'nbregpages' =>
     default => 0,
   );
 
+=head2 scan
+
+Collection Scan engines for the profile
+
+=cut
+
+has_field 'scans' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 scan.contains
+
+The definition for Scan Sources field
+
+=cut
+
+has_field 'scans.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_scan,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
 
 =head1 METHODS
 
@@ -247,6 +274,16 @@ Returns the list of sources to be displayed
 
 sub options_provisioners {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Provisioning->new->readAllIds};
+}
+
+=head2 options_scan
+
+Returns the list of scan to be displayed
+
+=cut
+
+sub options_scan {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
 =head2 options_mandatory_fields
