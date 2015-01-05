@@ -74,6 +74,8 @@ our (
     %ConfigRealm, $cached_realm,
 #scan.conf
     %ConfigScan, $cached_scan,
+#wmi.conf
+    %ConfigWmi, $cached_wmi,
 );
 
 BEGIN {
@@ -124,6 +126,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm $cached_realm
         %ConfigScan $cached_scan
+        %ConfigWmi $cached_wmi
     );
 }
 
@@ -424,6 +427,8 @@ sub init_config {
     readFloatingNetworkDeviceFile();
     readFirewallSSOFile();
     readRealmFile();
+    readScanFile();
+    readWmiFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -808,7 +813,7 @@ sub readRealmFile {
 
 =cut
 
-sub readScan {
+sub readScanFile {
     $cached_scan = pf::config::cached->new(
         -file => $scan_config_file,
         -allowempty => 1,
@@ -823,6 +828,24 @@ sub readScan {
     }
 }
 
+=item readWmiFile - wmi.conf
+
+=cut
+
+sub readWmiFile {
+    $cached_wmi = pf::config::cached->new(
+        -file => $wmi_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_wmi_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigWmi);
+            $config->cleanupWhitespace(\%ConfigWmi);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
 
 =item normalize_time - formats date
 
