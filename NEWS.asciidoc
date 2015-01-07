@@ -35,6 +35,7 @@ Enhancements
 * Refactor the vlan filter code to reduce code duplication
 * Added IMG path configuration parameter in admin
 * The ability to restricts the roles, access levels and access durations for an admin users based on their admin role/access level
+* PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests. (Console login using RADIUS as backend)
 
 Bug Fixes
 +++++++++
